@@ -151,10 +151,8 @@ lazy val docSettings = Seq(
   micrositeGithubOwner := "scalalandio",
   micrositeGithubRepo := "chimney",
   micrositeExtraMdFiles := Map(
-    file("README.md") -> microsites.ExtraMdFileConfig(
-      "index.md",
-      "home",
-      Map("title" -> "Home", "section" -> "index", "position" -> "1"))
+    file("README.md") -> microsites
+      .ExtraMdFileConfig("index.md", "home", Map("title" -> "Home", "section" -> "index", "position" -> "1"))
   ),
   micrositePalette := Map(
     "brand-primary" -> "#5B5988",
