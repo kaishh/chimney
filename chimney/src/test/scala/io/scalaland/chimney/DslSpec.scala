@@ -388,7 +388,7 @@ class DslSpec extends WordSpec with MustMatchers {
 
 object Domain1 {
 
-  case class UserName(value: String)
+  case class UserName(value: String) extends AnyVal
 
   val userNameToStringTransformer: Transformer[UserName, String] =
     (userName: UserName) => userName.value + "T"
