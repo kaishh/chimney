@@ -147,43 +147,26 @@ lazy val docSettings = Seq(
   micrositeAuthor := "Piotr Krzemiński, Mateusz Kubuszok",
   micrositeHighlightTheme := "atom-one-light",
   micrositeHomepage := "http://github.com/scalaland/chimney",
-  micrositeBaseUrl := "/chimney",
-  //  micrositeDocumentationUrl := "api",
+  micrositeBaseUrl := "chimney",
   micrositeGithubOwner := "scalalandio",
-  //  micrositeExtraMdFiles := Map(file("CONTRIBUTING.md") -> "contributing.md"),
   micrositeGithubRepo := "chimney",
+  micrositeExtraMdFiles := Map(
+    file("README.md") -> microsites.ExtraMdFileConfig(
+      "index.md",
+      "home",
+      Map("title" -> "Home", "section" -> "index", "position" -> "1"))
+  ),
   micrositePalette := Map(
-    "brand-primary" -> "#88695B",
-    "brand-secondary" -> "#533E29",
-    "brand-tertiary" -> "#493722",
+    "brand-primary" -> "#5B5988",
+    "brand-secondary" -> "#292E53",
+    "brand-tertiary" -> "#222749",
     "gray-dark" -> "#49494B",
     "gray" -> "#7B7B7E",
     "gray-light" -> "#E5E5E6",
     "gray-lighter" -> "#F4F3F4",
     "white-color" -> "#FFFFFF"
-    //"brand-primary" -> "#5B5988",
-    //"brand-secondary" -> "#292E53",
-    //"brand-tertiary" -> "#222749",
-    //"gray-dark" -> "#49494B",
-    //"gray" -> "#7B7B7E",
-    //"gray-light" -> "#E5E5E6",
-    //"gray-lighter" -> "#F4F3F4",
-    //"white-color" -> "#FFFFFF"
   ),
-  //  autoAPIMappings := true,
-  //  unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-  //    inProjects(docsSourcesAndProjects(scalaVersion.value)._2:_*),
-  //  docsMappingsAPIDir := "api",
-  //  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), docsMappingsAPIDir),
-  ghpagesNoJekyll := false,
   fork in tut := true,
-  //  fork in (ScalaUnidoc, unidoc) := true,
-  //  scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
-  //    "-Xfatal-warnings",
-  //    "-doc-source-url", scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
-  //    "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath,
-  //    "-diagrams"
-  //  ),
   git.remoteRepo := "git@github.com:scalaland/chimney.git",
   includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.yml" | "*.md" | "*.svg",
   includeFilter in Jekyll := (includeFilter in makeSite).value
