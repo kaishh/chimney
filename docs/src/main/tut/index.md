@@ -16,12 +16,12 @@ similar, but different data types with as less boilerplate code as possible.
 To get started with SBT, simply add the following to your build.sbt file:
 
 ```scala
-libraryDependencies += "io.scalaland" %% "chimney" % "0.1.3"
+libraryDependencies += "io.scalaland" %% "chimney" % "0.1.5"
 ```
 or...
 
 ```scala
-libraryDependencies += "io.scalaland" %%% "chimney" % "0.1.3"
+libraryDependencies += "io.scalaland" %%% "chimney" % "0.1.5"
 ```
 
 ...if you are using Scala.js.
@@ -31,7 +31,7 @@ libraryDependencies += "io.scalaland" %%% "chimney" % "0.1.3"
 
 ### <a name="copyright" href="#copyright"></a>Copyright and License
 
-Copyright 2016 Piotr Krzemiński, Mateusz Kubuszok
+Copyright 2017 Piotr Krzemiński, Mateusz Kubuszok
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

@@ -8,4 +8,3 @@ addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.2.0")
 
 addSbtPlugin("com.47deg" % "sbt-microsites" % "0.6.1")
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.0")
-
