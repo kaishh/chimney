@@ -5,116 +5,80 @@
 [![codecov.io](http://codecov.io/github/scalalandio/chimney/coverage.svg?branch=master)](http://codecov.io/github/scalalandio/chimney?branch=master)
 [![License](http://img.shields.io/:license-Apache%202-green.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-Scala library for boilerplate-free data rewriting.
 
-Motivation for it was a annoyance coming from rewriting one case class
-into another: once case of such was a need to separate external API from
-internal model, the other was process of manually applying migrations to
-e.g. some read model:
+Chimney is a Scala library for automatic mapping and transforming data structures.
 
-```scala
-case class DomainUser(id: Long, name: String, surname: String, ...)
-case class ApiUser(name: String, surname: String, ...)
-
-val domainUser: DomainUser = ...
-val apiUser = ApiUser(name = domainUser.name, surname = domainUser.surname, ...)
-```
+It sometimes happens that you need to transform an object into another target object,
+which contains number of the same fields in its definition.
 
 ```scala
-object version1 {
-   case class Transaction(date: LocalDate, description: String, ...)
-}
-object version2 {
-   case class Transaction(date: LocalDate, description: String, ...)
-}
-val version1Transaction: version1.Transaction = ...
-val version2Transaction = version2.Transaction(
-   date = version1Transaction.date,
-   description = version1Transaction.description,
-   ...
-)
+case class DoSthCommand(id: Int, what: String, requestor: String, doImmediately: Boolean)
+case class DidSthEvent(id: Int, didAt: Timestamp, what: String, requestor: String)
 ```
 
-Chimney was created to remove the pain coming from such boilerplate.
+## Transformations
 
-## Adding library to the project
+Instead of constructing target object field by field like in the example below...
 
 ```scala
-libraryDependencies += "io.scalaland" %% "chimney" % "0.1.6"
+val command = DoSthCommand(10, "Prepare good coffee", "John", true)
+val event = DidSthEvent(id = command.id,
+                        didAt = Timestamp.now,
+                        what = command.what,
+                        requestor = command.requestor)
 ```
 
-Due to [SI-7046](https://issues.scala-lang.org/browse/SI-7046) some derivations require at least Scala 2.12.1 or 2.11.9.
-
-## Basic product type rewriting
-
-In basic case we are trying to rewrite one product-type e.g. case class
-into another. For simplicity we can assume that respective types match
-and corresponding fields have the same names. Then we could transform
-them like this:
+...you can use Chimney library to derive transformation of fields, that have the same
+name and type, requiring only providing values for fields that are missing in the source
+object.
 
 ```scala
 import io.scalaland.chimney.dsl._
 
-case class Catterpillar(size: Int, name: String)
-case class Butterfly(size: Int, name: String)
-val steveTheCatterpillar = Catterpillar(10, "Steve")
-val steveTheButterfly = steveTheCatterpillar.into[Butterfly].transform
-// steveTheButterfly: Butterfly = Butterfly(10,Steve)
+val command = DoSthCommand(10, "Prepare good coffee", "John", true)
+val event = command.into[DidSthEvent].withFieldConst(_.didAt, Timestamp.now).transform
 ```
 
-In this very basic case we can also use syntax with a single call:
+If you forget about providing a value for `didAt` field, which is not present in the
+source object, you will get compile-time error.
+
+More details about Chimney transformers you can read [here](transformers.html).
+
+## Patching
+
+Similar, but a bit different use case is when you already hold an object, but you
+want to modify only some subset of its fields, where values for them are contained
+inside another object.
+
 
 ```scala
-val steveTheButterfly = steveTheCatterpillar.transformInto[Butterfly]
+case class User(id: Int, name: String, email: String, city: String, street: String, zip: String)
+case class ChangeAddress(city: String, street: String, zip: String)
+
+val user = User(10, "John", "john@example.com", "Sin city" , "Bad street", "00000")
+val changeAddress = ChangeAddress("Sun city", "Flowers alley", "12345")
+
+import io.scalaland.chimney.dsl._
+
+val updatedUser = user.patchWith(changeAddress)
+// updatedUser = User(10, "John", "john@example.com", "Sun city" , "Flowers alley", "12345")
 ```
 
-As a matter of the fact we can not only copy fields by name, when they
-exist, but also drop them if target type doesn't need them:
+More details about Chimney patchers you can read [here](patchers.html).
+
+## Getting started
+
+Chimney supports both Scala 2.11 and 2.12. To quickly get started, you should add following
+line to your `build.sbt` file.
 
 ```scala
-case class User(id: Long, details: String)
-case class ApiUser(details: String)
+libraryDependencies += "io.scalaland" %% "chimney" % "0.1.5"
 
-User(1L, "our user").transformInto[ApiUser]
-// ApiUser = ApiUser(our user)
+// or if you're using Scala.js:
+// libraryDependencies += "io.scalaland" %%% "chimney" % "0.1.5"
 ```
 
-As one might expect, usually we won't have such simple use cases. We
-might need to provide some value absent from the base type, or calculate
-it from original object:
-
-```scala
-case class Student(name: String, education: String)
-case class Employee(name: String, education: String, experience: List[String])
-
-Student("Paul", "University of Things").into[Employee]
-    .withFieldConst(_.experience, List("Internship in Z Company"))
-    .transform
-// Employee = Employee(Paul,University of Things,List(Internship in Z Company))
-Student("Paula", "University of Things").into[Employee]
-    .withFieldComputed(_.experience, student => List(s"${student.name}'s own company"))
-    .transform
-// Employee = Employee(Paula,University of Things,List(Paula's own company))
-```
-
-Sometimes a field just change its name:
-
-```scala
-case class SpyGB(name: String, surname: String)
-case class SpyRU(imya: String, familia: String)
-
-SpyGB("James", "Bond").into[SpyRU]
-    .withFieldRenamed(_.name, _.imya)
-    .withFieldRenamed(_.surname, _.familia)
-    .transform
-// SpyRU = SpyRU(James,Bond)
-```
-
-Additionally library should out-of-the-box support mappings for:
-
-  * value classes,
-  * basic collections,
-  * enumerations.
+Due to [SI-7046](https://issues.scala-lang.org/browse/SI-7046) some derivations require at least Scala 2.12.1 or 2.11.9.
 
 ## Copyright & license
 
@@ -124,4 +88,3 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-
