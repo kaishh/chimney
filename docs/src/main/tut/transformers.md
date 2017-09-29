@@ -35,7 +35,7 @@ val bar: Bar = Bar(y = foo.y, x = foo.x)
 
 As you may expect, this approach could quickly become tedious, especially
 at certain scale, when your types are bigger, highly nested and complex
-enough. What you can do instead is automating mapping process with help of
+enough. What you can do instead is automating mapping process with a help from
 Chimney library.
 
 ```scala
@@ -62,18 +62,29 @@ version of the same domain models in different packages, like in the following e
 
 ```scala
 package v1 {
-  case class User(id: Int, name: String, email: String)
+  case class User(id: Int, name: String, street: String, postalCode: String)
 }
 
 package v2 {
-  case class User(id: Int, name: String, email: String, age: Int)
+  case class Address(street: String, postalCode: String)
+  case class User(id: Int, name: String, addresses: List[Address])
 }
 ```
 
+With this approach usually you want to implement your domain logic only for the latest
+version and provide a way to migrate data from older versions. Such migration code reduces
+mostly to rewriting lot of the same fields and providing default values or custom
+transformation logic. Chimney can be used to eliminate migration-level boilerplate, still
+allowing for simple and more advanced customizations.
 
+```scala
+val v1User: v1.User = v1.User(10, "Jim Morrison", "Love Street", "12345")
 
-
-
+val v2User: v2.User = v1User.into[v2.User]
+  .withFieldComputed(_.addresses, u => List(v2.Address(u.street, u.postalCode)))
+  .transform
+// v2User: v2.User = User(10,Jim Morrison,List(Address(Love Street,12345)))
+```
 
 #### DTO objects mapping
 
