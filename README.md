@@ -12,7 +12,7 @@ It sometimes happens that you need to transform an object into another target ob
 which contains number of the same fields in its definition.
 
 ```scala
-case class DoSthCommand(id: Int, what: String, requestor: String, doImmediately: Boolean)
+case class DoSthCommand(id: Int, doImmediately: Boolean, what: String, requestor: String)
 case class DidSthEvent(id: Int, didAt: Timestamp, what: String, requestor: String)
 ```
 
@@ -21,7 +21,7 @@ case class DidSthEvent(id: Int, didAt: Timestamp, what: String, requestor: Strin
 Instead of constructing target object field by field like in the example below...
 
 ```scala
-val command = DoSthCommand(10, "Prepare good coffee", "John", true)
+val command = DoSthCommand(10, true, "Prepare good coffee", "John")
 val event = DidSthEvent(id = command.id,
                         didAt = Timestamp.now,
                         what = command.what,
@@ -35,9 +35,12 @@ object.
 ```scala
 import io.scalaland.chimney.dsl._
 
-val command = DoSthCommand(10, "Prepare good coffee", "John", true)
+val command = DoSthCommand(10, true, "Prepare good coffee", "John")
 val event = command.into[DidSthEvent].withFieldConst(_.didAt, Timestamp.now).transform
 ```
+
+This way seems to be especially convenient at scale when number of fields that
+need to be repeated is large. Chimney saves you from writing boring, repeatable code.
 
 If you forget about providing a value for `didAt` field, which is not present in the
 source object, you will get compile-time error.
